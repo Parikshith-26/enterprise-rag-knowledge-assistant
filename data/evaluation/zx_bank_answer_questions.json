@@ -1,0 +1,47 @@
+[
+    {
+        "question": "What documents are required for an Agriculture Loan?",
+        "expected_keywords": [
+            "Identity Proof",
+            "Address Proof",
+            "Land Ownership",
+            "passport",
+            "Kisan Credit Card"
+        ]
+    },
+    {
+        "question": "Who can apply for an Agriculture Loan?",
+        "expected_keywords": [
+            "Individual farmers",
+            "Joint landholders",
+            "Self Help Groups",
+            "Agribusinesses"
+        ]
+    },
+    {
+        "question": "How can I apply for an Agriculture Loan online?",
+        "expected_keywords": [
+            "Loans",
+            "Agriculture Loan",
+            "application form",
+            "upload documents",
+            "Track your application status",
+            "Zia"
+        ]
+    },
+    {
+        "question": "How do I activate UPI with ZX Bank?",
+        "expected_keywords": [
+            "ZX Bank Asia",
+            "mobile number",
+            "e-KYC",
+            "UPI"
+        ]
+    },
+    {
+        "question": "How can I apply for a cheque book?",
+        "expected_keywords": [
+            "cheque book"
+        ]
+    }
+]
