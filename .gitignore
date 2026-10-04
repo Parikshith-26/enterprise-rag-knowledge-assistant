@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 data/indexes/
 data/processed/zx_bank_embeddings.json
+data/logs/
