@@ -1,24 +1,14 @@
 import logging
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.generation.answer_generator import AnswerGenerator
 from src.logging_config import setup_logging
 
-
-# ---------------------------------------------------------
-# Logging
-# ---------------------------------------------------------
-
 setup_logging()
 
 logger = logging.getLogger(__name__)
-
-
-# ---------------------------------------------------------
-# FastAPI application
-# ---------------------------------------------------------
 
 app = FastAPI(
     title="ZX Bank Enterprise Knowledge Assistant API",
@@ -26,26 +16,13 @@ app = FastAPI(
     version="1.0.0",
 )
 
-
-# ---------------------------------------------------------
-# RAG engine
-# ---------------------------------------------------------
-
 rag = AnswerGenerator(top_k=5)
 
 
-# ---------------------------------------------------------
-# Request model
-# ---------------------------------------------------------
-
 class QuestionRequest(BaseModel):
     question: str
-    conversation_history: list[dict] = []
+    conversation_history: list[dict] = Field(default_factory=list)
 
-
-# ---------------------------------------------------------
-# Health check
-# ---------------------------------------------------------
 
 @app.get("/health")
 def health_check():
@@ -57,13 +34,8 @@ def health_check():
     }
 
 
-# ---------------------------------------------------------
-# Ask endpoint
-# ---------------------------------------------------------
-
 @app.post("/ask")
 def ask_question(request: QuestionRequest):
-
     logger.info(
         "Question received | length=%d | history_items=%d",
         len(request.question),
@@ -71,7 +43,6 @@ def ask_question(request: QuestionRequest):
     )
 
     try:
-
         result = rag.generate_answer(
             question=request.question,
             conversation_history=request.conversation_history,
@@ -89,8 +60,11 @@ def ask_question(request: QuestionRequest):
             "sources": result["sources"],
         }
 
-    except Exception:
-        logger.exception("Error while processing question")
+    except Exception as exc:
+        logger.exception(
+            "Error while processing question: %s",
+            exc,
+        )
 
         raise HTTPException(
             status_code=500,

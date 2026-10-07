@@ -2,9 +2,9 @@ import requests
 import streamlit as st
 
 
-# --------------------------------------------------
-# PAGE CONFIG
-# --------------------------------------------------
+# ============================================================
+# PAGE CONFIGURATION
+# ============================================================
 
 st.set_page_config(
     page_title="ZX Bank Knowledge Assistant",
@@ -13,24 +13,24 @@ st.set_page_config(
 )
 
 
-# --------------------------------------------------
+# ============================================================
 # FASTAPI BACKEND
-# --------------------------------------------------
+# ============================================================
 
-API_URL = "http://127.0.0.1:8000"
+API_URL = "http://api:8000"
 
 
-# --------------------------------------------------
+# ============================================================
 # CHAT HISTORY
-# --------------------------------------------------
+# ============================================================
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 
-# --------------------------------------------------
+# ============================================================
 # HEADER
-# --------------------------------------------------
+# ============================================================
 
 st.title("🏦 ZX Bank Enterprise Knowledge Assistant")
 
@@ -42,9 +42,9 @@ st.caption(
 st.divider()
 
 
-# --------------------------------------------------
+# ============================================================
 # SIDEBAR
-# --------------------------------------------------
+# ============================================================
 
 with st.sidebar:
 
@@ -52,7 +52,7 @@ with st.sidebar:
 
     st.write(
         "This assistant answers questions using "
-        "the ZX Bank knowledge base."
+        "the ZX Bank enterprise knowledge base."
     )
 
     st.divider()
@@ -68,9 +68,11 @@ with st.sidebar:
 
     st.divider()
 
-    # ----------------------------------------------
+    # --------------------------------------------------------
     # BACKEND HEALTH CHECK
-    # ----------------------------------------------
+    # --------------------------------------------------------
+
+    st.subheader("System Status")
 
     try:
 
@@ -93,9 +95,9 @@ with st.sidebar:
 
     st.divider()
 
-    # ----------------------------------------------
+    # --------------------------------------------------------
     # CLEAR CHAT
-    # ----------------------------------------------
+    # --------------------------------------------------------
 
     if st.button(
         "🗑️ Clear Chat",
@@ -107,27 +109,25 @@ with st.sidebar:
         st.rerun()
 
 
-# --------------------------------------------------
+# ============================================================
 # DISPLAY CHAT HISTORY
-# --------------------------------------------------
+# ============================================================
 
 for message in st.session_state.messages:
 
     with st.chat_message(message["role"]):
 
-        st.markdown(
-            message["content"]
-        )
+        st.markdown(message["content"])
 
-        # ------------------------------------------
-        # DISPLAY SOURCES
-        # ------------------------------------------
+        # ----------------------------------------------------
+        # DISPLAY SOURCES FOR ASSISTANT MESSAGES
+        # ----------------------------------------------------
 
         if message["role"] == "assistant":
 
             sources = message.get(
                 "sources",
-                []
+                [],
             )
 
             if sources:
@@ -143,27 +143,27 @@ for message in st.session_state.messages:
 
                         st.markdown(
                             f"**{index}. "
-                            f"{source['document_id']}**"
+                            f"{source.get('document_id', 'Unknown document')}**"
                         )
 
                         st.write(
                             f"**Section:** "
-                            f"{source['section']}"
+                            f"{source.get('section', 'N/A')}"
                         )
 
                         st.write(
                             f"**Chunk:** "
-                            f"{source['chunk_id']}"
+                            f"{source.get('chunk_id', 'N/A')}"
                         )
 
                         st.write(
                             f"**Document type:** "
-                            f"{source['document_type']}"
+                            f"{source.get('document_type', 'N/A')}"
                         )
 
                         st.write(
                             f"**Source:** "
-                            f"{source['source']}"
+                            f"{source.get('source', 'N/A')}"
                         )
 
                         if index < len(sources):
@@ -171,32 +171,32 @@ for message in st.session_state.messages:
                             st.divider()
 
 
-# --------------------------------------------------
+# ============================================================
 # CHAT INPUT
-# --------------------------------------------------
+# ============================================================
 
 question = st.chat_input(
     "Ask a question about ZX Bank..."
 )
 
 
-# --------------------------------------------------
+# ============================================================
 # PROCESS QUESTION
-# --------------------------------------------------
+# ============================================================
 
 if question:
 
-    # ----------------------------------------------
+    # --------------------------------------------------------
     # DISPLAY USER MESSAGE
-    # ----------------------------------------------
+    # --------------------------------------------------------
 
     with st.chat_message("user"):
 
         st.markdown(question)
 
-    # ----------------------------------------------
+    # --------------------------------------------------------
     # SEND QUESTION TO FASTAPI
-    # ----------------------------------------------
+    # --------------------------------------------------------
 
     with st.chat_message("assistant"):
 
@@ -227,7 +227,7 @@ if question:
 
                 st.error(
                     "Could not connect to the FastAPI "
-                    "backend. Make sure Uvicorn is running."
+                    "backend. Make sure the backend is running."
                 )
 
                 st.stop()
@@ -235,7 +235,16 @@ if question:
             except requests.exceptions.Timeout:
 
                 st.error(
-                    "The backend took too long to respond."
+                    "The backend took too long to respond. "
+                    "Please try again."
+                )
+
+                st.stop()
+
+            except requests.exceptions.HTTPError as error:
+
+                st.error(
+                    f"Backend returned an error: {error}"
                 )
 
                 st.stop()
@@ -248,9 +257,17 @@ if question:
 
                 st.stop()
 
-        # ------------------------------------------
+            except ValueError:
+
+                st.error(
+                    "The backend returned an invalid response."
+                )
+
+                st.stop()
+
+        # ----------------------------------------------------
         # ANSWER
-        # ------------------------------------------
+        # ----------------------------------------------------
 
         answer = result.get(
             "answer",
@@ -259,13 +276,13 @@ if question:
 
         st.markdown(answer)
 
-        # ------------------------------------------
+        # ----------------------------------------------------
         # SOURCES
-        # ------------------------------------------
+        # ----------------------------------------------------
 
         sources = result.get(
             "sources",
-            []
+            [],
         )
 
         if sources:
@@ -281,36 +298,36 @@ if question:
 
                     st.markdown(
                         f"**{index}. "
-                        f"{source['document_id']}**"
+                        f"{source.get('document_id', 'Unknown document')}**"
                     )
 
                     st.write(
                         f"**Section:** "
-                        f"{source['section']}"
+                        f"{source.get('section', 'N/A')}"
                     )
 
                     st.write(
                         f"**Chunk:** "
-                        f"{source['chunk_id']}"
+                        f"{source.get('chunk_id', 'N/A')}"
                     )
 
                     st.write(
                         f"**Document type:** "
-                        f"{source['document_type']}"
+                        f"{source.get('document_type', 'N/A')}"
                     )
 
                     st.write(
                         f"**Source:** "
-                        f"{source['source']}"
+                        f"{source.get('source', 'N/A')}"
                     )
 
                     if index < len(sources):
 
                         st.divider()
 
-    # ----------------------------------------------
+    # --------------------------------------------------------
     # SAVE USER MESSAGE
-    # ----------------------------------------------
+    # --------------------------------------------------------
 
     st.session_state.messages.append(
         {
@@ -319,9 +336,9 @@ if question:
         }
     )
 
-    # ----------------------------------------------
+    # --------------------------------------------------------
     # SAVE ASSISTANT MESSAGE
-    # ----------------------------------------------
+    # --------------------------------------------------------
 
     st.session_state.messages.append(
         {
