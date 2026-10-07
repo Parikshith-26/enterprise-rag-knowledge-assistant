@@ -52,7 +52,7 @@ class QuestionRequest(BaseModel):
         description="Previous conversation messages.",
     )
 
-    @field_validator("question")
+    @field_validator("question", mode="before")
     @classmethod
     def validate_question(cls, value: str) -> str:
         value = value.strip()
