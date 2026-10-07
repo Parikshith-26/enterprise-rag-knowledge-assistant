@@ -1,0 +1,11 @@
+venv/
+.git/
+.github/
+.env
+__pycache__/
+*.pyc
+data/logs/
+data/evaluation/
+*.ipynb
+*.tmp
+*.temp
